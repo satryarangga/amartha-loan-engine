@@ -17,6 +17,28 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.BorrowerRequest:
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      phone_number:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        description: Error message for debugging
+        example: Nil pointer reference
+        type: string
+      message:
+        description: Error message to be shown for user
+        example: Something went wrong while processing your request.
+        type: string
+      result:
+        description: Custom data for needed for specific case
+    type: object
   models.Loan:
     properties:
       amount:
@@ -94,15 +116,8 @@ definitions:
     type: object
 host: localhost:8080
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
+  contact: {}
   description: A Golang backend application for managing loans, borrowers, and payments.
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
-  termsOfService: http://swagger.io/terms/
   title: Amartha Loan Management API
   version: "1.0"
 paths:
@@ -117,13 +132,11 @@ paths:
         "200":
           description: Success
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.Borrower'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Get all borrowers
       tags:
       - borrowers
@@ -137,50 +150,22 @@ paths:
         name: borrower
         required: true
         schema:
-          $ref: '#/definitions/models.Borrower'
+          $ref: '#/definitions/models.BorrowerRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.Borrower'
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Create a new borrower
       tags:
       - borrowers
   /borrowers/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a borrower by their ID
-      parameters:
-      - description: Borrower ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Delete a borrower
-      tags:
-      - borrowers
     get:
       consumes:
       - application/json
@@ -197,51 +182,16 @@ paths:
         "200":
           description: Success
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.Borrower'
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Get borrower by ID
-      tags:
-      - borrowers
-    put:
-      consumes:
-      - application/json
-      description: Update an existing borrower's information
-      parameters:
-      - description: Borrower ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Updated borrower object
-        in: body
-        name: borrower
-        required: true
-        schema:
-          $ref: '#/definitions/models.Borrower'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Update a borrower
       tags:
       - borrowers
   /loans:

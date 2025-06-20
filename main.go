@@ -19,14 +19,6 @@ import (
 // @title           Amartha Loan Management API
 // @version         1.0
 // @description     A Golang backend application for managing loans, borrowers, and payments.
-// @termsOfService  http://swagger.io/terms/
-
-// @contact.name   API Support
-// @contact.url    http://www.swagger.io/support
-// @contact.email  support@swagger.io
-
-// @license.name  MIT
-// @license.url   https://opensource.org/licenses/MIT
 
 // @host      localhost:8080
 // @BasePath  /api/v1
@@ -88,8 +80,6 @@ func main() {
 		api.GET("/borrowers", borrowerController.GetBorrowers)
 		api.GET("/borrowers/:id", borrowerController.GetBorrowerByID)
 		api.POST("/borrowers", borrowerController.CreateBorrower)
-		api.PUT("/borrowers/:id", borrowerController.UpdateBorrower)
-		api.DELETE("/borrowers/:id", borrowerController.DeleteBorrower)
 
 		// Loan routes
 		api.POST("/loans", loanController.CreateLoan)
@@ -112,7 +102,7 @@ func main() {
 
 	log.Printf("Server starting on port %s", port)
 	log.Printf("Swagger documentation available at http://localhost:%s/swagger/index.html", port)
-	log.Printf("Direct docs.json available at http://localhost:%s/docs.json", port)
+	log.Printf("Direct docs.json available at http://localhost:%s/doc.json", port)
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}

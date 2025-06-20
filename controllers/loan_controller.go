@@ -10,10 +10,10 @@ import (
 )
 
 type LoanController struct {
-	loanService *services.LoanService
+	loanService *services.LoanServiceImpl
 }
 
-func NewLoanController(loanService *services.LoanService) *LoanController {
+func NewLoanController(loanService *services.LoanServiceImpl) *LoanController {
 	return &LoanController{
 		loanService: loanService,
 	}
@@ -39,7 +39,7 @@ func (c *LoanController) CreateLoan(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.loanService.CreateLoan(&loan); err != nil {
+	if err := c.loanService.CreateLoan(ctx, &loan); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Failed to create loan",
 			"details": err.Error(),
@@ -63,7 +63,7 @@ func (c *LoanController) CreateLoan(ctx *gin.Context) {
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
 // @Router /loans [get]
 func (c *LoanController) GetLoans(ctx *gin.Context) {
-	loans, err := c.loanService.GetLoans()
+	loans, err := c.loanService.GetLoans(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch loans",
@@ -98,7 +98,7 @@ func (c *LoanController) GetLoanByID(ctx *gin.Context) {
 		return
 	}
 
-	loan, err := c.loanService.GetLoanByID(id)
+	loan, err := c.loanService.GetLoanByID(ctx, id)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error":   "Loan not found",
@@ -141,7 +141,7 @@ func (c *LoanController) UpdateLoan(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.loanService.UpdateLoan(&loan); err != nil {
+	if err := c.loanService.UpdateLoan(ctx, &loan); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Failed to update loan",
 			"details": err.Error(),
@@ -174,15 +174,8 @@ func (c *LoanController) DeleteLoan(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.loanService.DeleteLoan(id); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Failed to delete loan",
-			"details": err.Error(),
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "Loan deleted successfully",
+	// Note: DeleteLoan method was removed from service as it's not in CommonRepository
+	ctx.JSON(http.StatusNotImplemented, gin.H{
+		"error": "Delete functionality not implemented",
 	})
 }

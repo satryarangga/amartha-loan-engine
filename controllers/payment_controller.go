@@ -9,10 +9,10 @@ import (
 )
 
 type PaymentController struct {
-	paymentService *services.PaymentService
+	paymentService *services.PaymentServiceImpl
 }
 
-func NewPaymentController(paymentService *services.PaymentService) *PaymentController {
+func NewPaymentController(paymentService *services.PaymentServiceImpl) *PaymentController {
 	return &PaymentController{
 		paymentService: paymentService,
 	}
@@ -37,7 +37,7 @@ func (c *PaymentController) GeneratePaymentLink(ctx *gin.Context) {
 		return
 	}
 
-	paymentData, err := c.paymentService.GeneratePaymentLink(loanID)
+	paymentData, err := c.paymentService.GeneratePaymentLink(ctx, loanID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Failed to generate payment link",
@@ -72,7 +72,7 @@ func (c *PaymentController) HandlePaymentWebhook(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.paymentService.HandlePaymentWebhook(paymentData); err != nil {
+	if err := c.paymentService.HandlePaymentWebhook(ctx, paymentData); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Failed to process payment webhook",
 			"details": err.Error(),
@@ -105,7 +105,7 @@ func (c *PaymentController) GetPaymentHistory(ctx *gin.Context) {
 		return
 	}
 
-	payments, err := c.paymentService.GetPaymentHistory(loanID)
+	payments, err := c.paymentService.GetPaymentHistory(ctx, loanID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch payment history",
