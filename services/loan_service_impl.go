@@ -5,101 +5,101 @@ import (
 	"errors"
 	"time"
 
+	"github.com/satryarangga/amartha-loan-engine/helpers"
 	"github.com/satryarangga/amartha-loan-engine/models"
 	"github.com/satryarangga/amartha-loan-engine/repositories"
-
-	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type LoanServiceImpl struct {
 	loanRepo         repositories.LoanRepository
 	loanScheduleRepo repositories.LoanScheduleRepository
+	borrowerRepo     repositories.BorrowerRepository
 }
 
-func NewLoanService(loanRepo repositories.LoanRepository, loanScheduleRepo repositories.LoanScheduleRepository) *LoanServiceImpl {
+func NewLoanService(loanRepo repositories.LoanRepository, loanScheduleRepo repositories.LoanScheduleRepository, borrowerRepo repositories.BorrowerRepository) *LoanServiceImpl {
 	return &LoanServiceImpl{
 		loanRepo:         loanRepo,
 		loanScheduleRepo: loanScheduleRepo,
+		borrowerRepo:     borrowerRepo,
 	}
 }
 
-func (s *LoanServiceImpl) GetLoans(ctx context.Context) ([]models.Loan, error) {
-	return s.loanRepo.FindAll(ctx, models.FindAllParam{})
-}
-
-func (s *LoanServiceImpl) GetLoanByID(ctx context.Context, id string) (*models.Loan, error) {
+func (s *LoanServiceImpl) GetLoanByID(ctx context.Context, id string) (*models.LoanResponse, error) {
 	if id == "" {
 		return nil, errors.New("loan ID is required")
 	}
-	return s.loanRepo.FindByID(ctx, id)
+	loan, err := s.loanRepo.FindByID(ctx, id, []string{"LoanSchedules"})
+	if err != nil {
+		return nil, err
+	}
+
+	loanResponse := models.LoanResponse{
+		ID:                   loan.ID,
+		Amount:               loan.Amount,
+		RepaymentCadenceDays: loan.RepaymentCadenceDays,
+		RepaymentRepetition:  loan.RepaymentRepetition,
+		InterestPercentage:   loan.InterestPercentage,
+		InterestAmount:       loan.InterestAmount,
+		Status:               loan.Status,
+		TotalOutstanding:     helpers.CalculateTotalOutstanding(loan),
+	}
+
+	return &loanResponse, nil
 }
 
-func (s *LoanServiceImpl) CreateLoan(ctx context.Context, loan *models.Loan) error {
-	// Validate required fields
-	if loan.BorrowerID.String() == "" {
-		return errors.New("borrower ID is required")
-	}
-	if loan.Amount <= 0 {
-		return errors.New("loan amount must be greater than 0")
-	}
-	if loan.RepaymentCadenceDays <= 0 {
-		return errors.New("repayment cadence days must be greater than 0")
-	}
-	if loan.InterestPercentage < 0 {
-		return errors.New("interest percentage cannot be negative")
-	}
-
-	// Calculate interest amount
-	loan.InterestAmount = (loan.Amount * loan.InterestPercentage) / 100
-
-	// Set default status
-	if loan.Status == "" {
-		loan.Status = "active"
-	}
-
-	// Create the loan
-	_, err := s.loanRepo.Insert(ctx, nil, loan)
+func (s *LoanServiceImpl) CreateLoan(ctx context.Context, req *models.LoanRequest) error {
+	borrower, err := s.borrowerRepo.FindByID(ctx, req.BorrowerID, []string{})
 	if err != nil {
 		return err
 	}
 
-	// Generate loan schedules
-	return s.generateLoanSchedules(ctx, loan)
-}
+	if borrower == nil {
+		return errors.New("borrower not found")
+	}
 
-func (s *LoanServiceImpl) generateLoanSchedules(ctx context.Context, loan *models.Loan) error {
-	// Calculate basic amount per schedule (assuming equal distribution)
-	basicAmountPerSchedule := loan.Amount / float64(loan.RepaymentCadenceDays)
-	interestAmountPerSchedule := loan.InterestAmount / float64(loan.RepaymentCadenceDays)
+	interestAmount := req.Amount * req.InterestPercentage / 100
 
-	startDate := time.Now()
+	loan := models.Loan{
+		BorrowerID:           borrower.ID,
+		Amount:               req.Amount,
+		RepaymentCadenceDays: req.RepaymentCadenceDays,
+		RepaymentRepetition:  req.RepaymentRepetition,
+		InterestPercentage:   req.InterestPercentage,
+		InterestAmount:       interestAmount,
+		Status:               "active",
+	}
 
-	for i := 0; i < loan.RepaymentCadenceDays; i++ {
-		dueDate := startDate.AddDate(0, 0, i+1) // Start from tomorrow
-
-		schedule := models.LoanSchedule{
-			ID:             uuid.New(),
-			LoanID:         loan.ID,
-			DueDate:        dueDate,
-			BasicAmount:    basicAmountPerSchedule,
-			InterestAmount: interestAmountPerSchedule,
-			TotalPayment:   basicAmountPerSchedule + interestAmountPerSchedule,
-			Status:         "pending",
-		}
-
-		// Insert each schedule individually since CreateBatch is not in CommonRepository
-		_, err := s.loanScheduleRepo.Insert(ctx, nil, &schedule)
+	err = s.loanRepo.WithTransaction(ctx, func(tx *gorm.DB) error {
+		loanID, err := s.loanRepo.Insert(ctx, tx, &loan)
 		if err != nil {
 			return err
 		}
-	}
 
-	return nil
-}
+		loanSchedules := make([]models.LoanSchedule, req.RepaymentRepetition)
+		basicRepaymentAmount := loan.Amount / float64(req.RepaymentRepetition)
+		interestRepaymentAmount := loan.InterestAmount / float64(req.RepaymentRepetition)
+		totalRepaymentAmount := basicRepaymentAmount + interestRepaymentAmount
+		for i := 1; i <= req.RepaymentRepetition; i++ {
+			loanSchedules[i-1] = models.LoanSchedule{
+				LoanID:         loanID,
+				DueDate:        time.Now().AddDate(0, 0, req.RepaymentCadenceDays*i),
+				BasicAmount:    basicRepaymentAmount,
+				InterestAmount: interestRepaymentAmount,
+				TotalPayment:   totalRepaymentAmount,
+				Status:         "pending",
+			}
+		}
 
-func (s *LoanServiceImpl) UpdateLoan(ctx context.Context, loan *models.Loan) error {
-	if loan.ID.String() == "" {
-		return errors.New("loan ID is required")
-	}
-	return s.loanRepo.Update(ctx, nil, loan)
+		for _, loanSchedule := range loanSchedules {
+			_, err := s.loanScheduleRepo.Insert(ctx, tx, &loanSchedule)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	return err
 }

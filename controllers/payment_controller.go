@@ -84,38 +84,3 @@ func (c *PaymentController) HandlePaymentWebhook(ctx *gin.Context) {
 		"message": "Payment processed successfully",
 	})
 }
-
-// GetPaymentHistory godoc
-// @Summary Get payment history
-// @Description Retrieve payment history for a specific loan
-// @Tags payments
-// @Accept json
-// @Produce json
-// @Param id path string true "Loan ID"
-// @Success 200 {object} map[string]interface{} "Success"
-// @Failure 400 {object} map[string]interface{} "Bad Request"
-// @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /loans/{id}/payments [get]
-func (c *PaymentController) GetPaymentHistory(ctx *gin.Context) {
-	loanID := ctx.Param("id")
-	if loanID == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Loan ID is required",
-		})
-		return
-	}
-
-	payments, err := c.paymentService.GetPaymentHistory(ctx, loanID)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Failed to fetch payment history",
-			"details": err.Error(),
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":  payments,
-		"count": len(payments),
-	})
-}

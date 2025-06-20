@@ -8,8 +8,6 @@ definitions:
         type: string
       id:
         type: string
-      is_delinquent:
-        type: boolean
       last_name:
         type: string
       phone_number:
@@ -25,6 +23,10 @@ definitions:
         type: string
       phone_number:
         type: string
+    required:
+    - first_name
+    - last_name
+    - phone_number
     type: object
   models.ErrorResponse:
     properties:
@@ -65,6 +67,8 @@ definitions:
         type: array
       repayment_cadence_days:
         type: integer
+      repayment_repetition:
+        type: integer
       status:
         type: string
       updated_at:
@@ -90,6 +94,25 @@ definitions:
         type: number
       updated_at:
         type: string
+    type: object
+  models.LoanRequest:
+    properties:
+      amount:
+        type: number
+      borrower_id:
+        type: string
+      interest_percentage:
+        type: number
+      repayment_cadence_days:
+        type: integer
+      repayment_repetition:
+        type: integer
+    required:
+    - amount
+    - borrower_id
+    - interest_percentage
+    - repayment_cadence_days
+    - repayment_repetition
     type: object
   models.LoanSchedule:
     properties:
@@ -122,24 +145,6 @@ info:
   version: "1.0"
 paths:
   /borrowers:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a list of all borrowers
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: '#/definitions/models.Borrower'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Get all borrowers
-      tags:
-      - borrowers
     post:
       consumes:
       - application/json
@@ -195,26 +200,6 @@ paths:
       tags:
       - borrowers
   /loans:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a list of all loans
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Get all loans
-      tags:
-      - loans
     post:
       consumes:
       - application/json
@@ -225,50 +210,22 @@ paths:
         name: loan
         required: true
         schema:
-          $ref: '#/definitions/models.Loan'
+          $ref: '#/definitions/models.LoanRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.Loan'
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Create a new loan
       tags:
       - loans
   /loans/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a loan by its ID
-      parameters:
-      - description: Loan ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Delete a loan
-      tags:
-      - loans
     get:
       consumes:
       - application/json
@@ -285,51 +242,16 @@ paths:
         "200":
           description: Success
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.Loan'
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Get loan by ID
-      tags:
-      - loans
-    put:
-      consumes:
-      - application/json
-      description: Update an existing loan's information
-      parameters:
-      - description: Loan ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Updated loan object
-        in: body
-        name: loan
-        required: true
-        schema:
-          $ref: '#/definitions/models.Loan'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Update a loan
       tags:
       - loans
   /loans/{id}/payment-link:
@@ -357,38 +279,6 @@ paths:
             additionalProperties: true
             type: object
       summary: Generate payment link
-      tags:
-      - payments
-  /loans/{id}/payments:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve payment history for a specific loan
-      parameters:
-      - description: Loan ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Get payment history
       tags:
       - payments
   /webhook/payment:

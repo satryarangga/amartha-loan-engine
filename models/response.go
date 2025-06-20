@@ -8,3 +8,14 @@ type ErrorResponse struct {
 	ErrorText string      `json:"error,omitempty" example:"Nil pointer reference"`                       // Error message for debugging
 	Result    interface{} `json:"result,omitempty"`                                                      // Custom data for needed for specific case
 }
+
+type LoanResponse struct {
+	ID                   string  `json:"id"`
+	Amount               float64 `json:"amount"`
+	RepaymentCadenceDays int     `json:"repayment_cadence_days"`
+	RepaymentRepetition  int     `json:"repayment_repetition"`
+	InterestPercentage   float64 `json:"interest_percentage"`
+	InterestAmount       float64 `json:"interest_amount"`
+	Status               string  `json:"status"`
+	TotalOutstanding     float64 `json:"total_outstanding"`
+}

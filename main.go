@@ -54,7 +54,7 @@ func main() {
 
 	// Initialize services
 	borrowerService := services.NewBorrowerService(borrowerRepo)
-	loanService := services.NewLoanService(loanRepo, loanScheduleRepo)
+	loanService := services.NewLoanService(loanRepo, loanScheduleRepo, borrowerRepo)
 	paymentService := services.NewPaymentService(loanPaymentRepo, loanScheduleRepo)
 
 	// Initialize controllers
@@ -77,21 +77,16 @@ func main() {
 	api := r.Group("/api/v1")
 	{
 		// Borrower routes
-		api.GET("/borrowers", borrowerController.GetBorrowers)
 		api.GET("/borrowers/:id", borrowerController.GetBorrowerByID)
 		api.POST("/borrowers", borrowerController.CreateBorrower)
 
 		// Loan routes
 		api.POST("/loans", loanController.CreateLoan)
-		api.GET("/loans", loanController.GetLoans)
 		api.GET("/loans/:id", loanController.GetLoanByID)
-		api.PUT("/loans/:id", loanController.UpdateLoan)
-		api.DELETE("/loans/:id", loanController.DeleteLoan)
 
 		// Payment routes
 		api.POST("/loans/:id/payment-link", paymentController.GeneratePaymentLink)
 		api.POST("/webhook/payment", paymentController.HandlePaymentWebhook)
-		api.GET("/loans/:id/payments", paymentController.GetPaymentHistory)
 	}
 
 	// Get port from environment

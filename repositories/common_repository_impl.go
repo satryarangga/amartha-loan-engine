@@ -94,13 +94,20 @@ func (r *CommonRepositoryImpl[T]) Update(ctx context.Context, tx *gorm.DB, model
 	return result.Error
 }
 
-func (r *CommonRepositoryImpl[T]) FindByID(ctx context.Context, id string) (*T, error) {
+func (r *CommonRepositoryImpl[T]) FindByID(ctx context.Context, id string, relations []string) (*T, error) {
 	var model T
 	query := r.db.WithContext(ctx).Where("id = ?", id)
+	for _, relation := range relations {
+		query = query.Preload(relation)
+	}
 
 	result := query.First(&model)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return &model, nil
+}
+
+func (r *CommonRepositoryImpl[T]) WithTransaction(ctx context.Context, fn TransactionFunc) error {
+	return r.db.WithContext(ctx).Transaction(fn)
 }

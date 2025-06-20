@@ -16,33 +16,6 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/borrowers": {
-            "get": {
-                "description": "Retrieve a list of all borrowers",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "borrowers"
-                ],
-                "summary": "Get all borrowers",
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/models.Borrower"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "Create a new borrower with the provided information",
                 "consumes": [
@@ -127,35 +100,6 @@ const docTemplate = `{
             }
         },
         "/loans": {
-            "get": {
-                "description": "Retrieve a list of all loans",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "loans"
-                ],
-                "summary": "Get all loans",
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "Create a new loan with automatic schedule generation",
                 "consumes": [
@@ -175,7 +119,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Loan"
+                            "$ref": "#/definitions/models.LoanRequest"
                         }
                     }
                 ],
@@ -183,15 +127,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.Loan"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -223,107 +165,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Success",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.Loan"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update an existing loan's information",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "loans"
-                ],
-                "summary": "Update a loan",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Loan ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated loan object",
-                        "name": "loan",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Loan"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a loan by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "loans"
-                ],
-                "summary": "Delete a loan",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Loan ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -361,53 +215,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/loans/{id}/payments": {
-            "get": {
-                "description": "Retrieve payment history for a specific loan",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "payments"
-                ],
-                "summary": "Get payment history",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Loan ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -473,9 +280,6 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "is_delinquent": {
-                    "type": "boolean"
-                },
                 "last_name": {
                     "type": "string"
                 },
@@ -489,6 +293,11 @@ const docTemplate = `{
         },
         "models.BorrowerRequest": {
             "type": "object",
+            "required": [
+                "first_name",
+                "last_name",
+                "phone_number"
+            ],
             "properties": {
                 "first_name": {
                     "type": "string"
@@ -558,6 +367,9 @@ const docTemplate = `{
                 "repayment_cadence_days": {
                     "type": "integer"
                 },
+                "repayment_repetition": {
+                    "type": "integer"
+                },
                 "status": {
                     "type": "string"
                 },
@@ -595,6 +407,33 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "models.LoanRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "borrower_id",
+                "interest_percentage",
+                "repayment_cadence_days",
+                "repayment_repetition"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "borrower_id": {
+                    "type": "string"
+                },
+                "interest_percentage": {
+                    "type": "number"
+                },
+                "repayment_cadence_days": {
+                    "type": "integer"
+                },
+                "repayment_repetition": {
+                    "type": "integer"
                 }
             }
         },

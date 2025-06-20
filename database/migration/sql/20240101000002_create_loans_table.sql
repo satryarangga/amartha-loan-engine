@@ -5,6 +5,7 @@ CREATE TABLE loans (
     borrower_id UUID NOT NULL REFERENCES borrowers(id) ON DELETE CASCADE,
     amount DECIMAL(15,2) NOT NULL,
     repayment_cadence_days INTEGER NOT NULL,
+    repayment_repetition INTEGER NOT NULL,
     interest_percentage DECIMAL(5,2) NOT NULL,
     interest_amount DECIMAL(15,2) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'active',

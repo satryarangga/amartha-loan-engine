@@ -19,31 +19,6 @@ func NewBorrowerController(borrowerService *services.BorrowerServiceImpl) *Borro
 	}
 }
 
-// GetBorrowers godoc
-// @Summary Get all borrowers
-// @Description Retrieve a list of all borrowers
-// @Tags borrowers
-// @Accept json
-// @Produce json
-// @Success 200 {object} models.Borrower "Success"
-// @Failure 500 {object} models.ErrorResponse "Internal Server Error"
-// @Router /borrowers [get]
-func (c *BorrowerController) GetBorrowers(ctx *gin.Context) {
-	borrowers, err := c.borrowerService.GetBorrowers(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Failed to fetch borrowers",
-			"details": err.Error(),
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":  borrowers,
-		"count": len(borrowers),
-	})
-}
-
 // GetBorrowerByID godoc
 // @Summary Get borrower by ID
 // @Description Retrieve a specific borrower by their ID
