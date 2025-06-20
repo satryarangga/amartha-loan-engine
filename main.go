@@ -3,18 +3,41 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/satryarangga/amartha-loan-engine/config"
 	"github.com/satryarangga/amartha-loan-engine/controllers"
 	"github.com/satryarangga/amartha-loan-engine/repositories"
 	"github.com/satryarangga/amartha-loan-engine/services"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/satryarangga/amartha-loan-engine/docs"
 )
 
+// @title           Amartha Loan Management API
+// @version         1.0
+// @description     A Golang backend application for managing loans, borrowers, and payments.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  MIT
+// @license.url   https://opensource.org/licenses/MIT
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
+
 func main() {
+
 	// Initialize logger
 	logger := config.NewLogger()
 	ctx := context.Background()
@@ -50,9 +73,13 @@ func main() {
 	// Setup router
 	r := gin.Default()
 
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "OK"})
+	// Debug route to check if docs are accessible
+	r.GET("/docs.json", func(c *gin.Context) {
+		c.File("./docs/swagger.json")
 	})
+
+	// Swagger documentation route
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API routes
 	api := r.Group("/api/v1")
@@ -60,15 +87,21 @@ func main() {
 		// Borrower routes
 		api.GET("/borrowers", borrowerController.GetBorrowers)
 		api.GET("/borrowers/:id", borrowerController.GetBorrowerByID)
+		api.POST("/borrowers", borrowerController.CreateBorrower)
+		api.PUT("/borrowers/:id", borrowerController.UpdateBorrower)
+		api.DELETE("/borrowers/:id", borrowerController.DeleteBorrower)
 
 		// Loan routes
 		api.POST("/loans", loanController.CreateLoan)
 		api.GET("/loans", loanController.GetLoans)
 		api.GET("/loans/:id", loanController.GetLoanByID)
+		api.PUT("/loans/:id", loanController.UpdateLoan)
+		api.DELETE("/loans/:id", loanController.DeleteLoan)
 
 		// Payment routes
 		api.POST("/loans/:id/payment-link", paymentController.GeneratePaymentLink)
 		api.POST("/webhook/payment", paymentController.HandlePaymentWebhook)
+		api.GET("/loans/:id/payments", paymentController.GetPaymentHistory)
 	}
 
 	// Get port from environment
@@ -78,6 +111,8 @@ func main() {
 	}
 
 	log.Printf("Server starting on port %s", port)
+	log.Printf("Swagger documentation available at http://localhost:%s/swagger/index.html", port)
+	log.Printf("Direct docs.json available at http://localhost:%s/docs.json", port)
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}

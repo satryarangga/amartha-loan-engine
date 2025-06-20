@@ -9,6 +9,7 @@ A Golang backend application for managing loans, borrowers, and payments with Po
 - **Payment Processing**: Generate payment links and handle payment webhooks
 - **Database Migrations**: Using Goose for database schema management
 - **Clean Architecture**: Controller-Service-Repository pattern
+- **API Documentation**: Swagger/OpenAPI documentation
 
 ## Tech Stack
 
@@ -18,6 +19,7 @@ A Golang backend application for managing loans, borrowers, and payments with Po
 - **Database**: PostgreSQL
 - **Migrations**: Goose
 - **Environment**: godotenv
+- **API Documentation**: Swagger/OpenAPI
 
 ## Prerequisites
 
@@ -33,10 +35,14 @@ A Golang backend application for managing loans, borrowers, and payments with Po
    cd amartha
    ```
 
-2. **Install dependencies**
+2. **Install dependencies and setup project**
    ```bash
-   go mod tidy
+   make setup
    ```
+   This will:
+   - Install all dependencies
+   - Generate Swagger documentation
+   - Run database migrations
 
 3. **Set up PostgreSQL database**
    ```bash
@@ -51,21 +57,28 @@ A Golang backend application for managing loans, borrowers, and payments with Po
    # Edit .env with your database credentials
    ```
 
-5. **Run database migrations**
+5. **Run the application**
    ```bash
-   # Install goose if not already installed
-   go install github.com/pressly/goose/v3/cmd/goose@latest
-   
-   # Run migrations
-   goose -dir migrations postgres "host=localhost user=postgres password=password dbname=amartha_db sslmode=disable" up
-   ```
-
-6. **Run the application**
-   ```bash
+   make run
+   # or
    go run main.go
    ```
 
 The server will start on `http://localhost:8080`
+
+## API Documentation
+
+### Swagger UI
+Once the application is running, you can access the interactive API documentation at:
+```
+http://localhost:8080/swagger/index.html
+```
+
+### Generate Swagger Documentation
+To regenerate the Swagger documentation after making changes:
+```bash
+make swagger
+```
 
 ## API Endpoints
 
@@ -204,29 +217,43 @@ amartha/
 │   ├── 20240101000002_create_loans_table.sql
 │   ├── 20240101000003_create_loan_schedules_table.sql
 │   └── 20240101000004_create_loan_payments_table.sql
+├── scripts/
+│   └── swagger.sh
+├── docs/           # Generated Swagger documentation
 ├── main.go
 ├── go.mod
+├── Makefile
 ├── config.env
 └── README.md
 ```
 
 ## Development
 
+### Available Make Commands
+```bash
+make help      # Show available commands
+make deps      # Install dependencies
+make build     # Build the application
+make run       # Run the application
+make test      # Run tests
+make clean     # Clean build artifacts
+make swagger   # Generate Swagger documentation
+make migrate   # Run database migrations
+make setup     # Complete project setup
+```
+
 ### Running Tests
 ```bash
+make test
+# or
 go test ./...
 ```
 
 ### Database Migrations
 ```bash
-# Create new migration
-goose -dir migrations create migration_name
-
-# Run migrations
+make migrate
+# or manually:
 goose -dir migrations postgres "connection-string" up
-
-# Rollback migration
-goose -dir migrations postgres "connection-string" down
 ```
 
 ### Code Formatting
@@ -237,6 +264,13 @@ go fmt ./...
 ### Linting
 ```bash
 go vet ./...
+```
+
+### Regenerate Swagger Documentation
+```bash
+make swagger
+# or
+./scripts/swagger.sh
 ```
 
 ## Environment Variables
@@ -259,7 +293,8 @@ SERVER_PORT=8080
 2. Create a feature branch
 3. Make your changes
 4. Add tests if applicable
-5. Submit a pull request
+5. Update Swagger documentation if needed
+6. Submit a pull request
 
 ## License
 

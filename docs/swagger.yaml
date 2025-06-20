@@ -1,0 +1,479 @@
+basePath: /api/v1
+definitions:
+  models.Borrower:
+    properties:
+      created_at:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      is_delinquent:
+        type: boolean
+      last_name:
+        type: string
+      phone_number:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Loan:
+    properties:
+      amount:
+        type: number
+      borrower:
+        $ref: '#/definitions/models.Borrower'
+      borrower_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      interest_amount:
+        type: number
+      interest_percentage:
+        type: number
+      loan_payments:
+        items:
+          $ref: '#/definitions/models.LoanPayment'
+        type: array
+      loan_schedules:
+        items:
+          $ref: '#/definitions/models.LoanSchedule'
+        type: array
+      repayment_cadence_days:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.LoanPayment:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      loan:
+        $ref: '#/definitions/models.Loan'
+      loan_id:
+        type: string
+      loan_schedule_ids:
+        items:
+          type: string
+        type: array
+      payment_method:
+        type: string
+      total_payment:
+        type: number
+      updated_at:
+        type: string
+    type: object
+  models.LoanSchedule:
+    properties:
+      basic_amount:
+        type: number
+      created_at:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: string
+      interest_amount:
+        type: number
+      loan:
+        $ref: '#/definitions/models.Loan'
+      loan_id:
+        type: string
+      status:
+        type: string
+      total_payment:
+        type: number
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A Golang backend application for managing loans, borrowers, and payments.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Amartha Loan Management API
+  version: "1.0"
+paths:
+  /borrowers:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all borrowers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all borrowers
+      tags:
+      - borrowers
+    post:
+      consumes:
+      - application/json
+      description: Create a new borrower with the provided information
+      parameters:
+      - description: Borrower object
+        in: body
+        name: borrower
+        required: true
+        schema:
+          $ref: '#/definitions/models.Borrower'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new borrower
+      tags:
+      - borrowers
+  /borrowers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a borrower by their ID
+      parameters:
+      - description: Borrower ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a borrower
+      tags:
+      - borrowers
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific borrower by their ID
+      parameters:
+      - description: Borrower ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get borrower by ID
+      tags:
+      - borrowers
+    put:
+      consumes:
+      - application/json
+      description: Update an existing borrower's information
+      parameters:
+      - description: Borrower ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated borrower object
+        in: body
+        name: borrower
+        required: true
+        schema:
+          $ref: '#/definitions/models.Borrower'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a borrower
+      tags:
+      - borrowers
+  /loans:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all loans
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all loans
+      tags:
+      - loans
+    post:
+      consumes:
+      - application/json
+      description: Create a new loan with automatic schedule generation
+      parameters:
+      - description: Loan object
+        in: body
+        name: loan
+        required: true
+        schema:
+          $ref: '#/definitions/models.Loan'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new loan
+      tags:
+      - loans
+  /loans/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a loan by its ID
+      parameters:
+      - description: Loan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a loan
+      tags:
+      - loans
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific loan by its ID
+      parameters:
+      - description: Loan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get loan by ID
+      tags:
+      - loans
+    put:
+      consumes:
+      - application/json
+      description: Update an existing loan's information
+      parameters:
+      - description: Loan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated loan object
+        in: body
+        name: loan
+        required: true
+        schema:
+          $ref: '#/definitions/models.Loan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a loan
+      tags:
+      - loans
+  /loans/{id}/payment-link:
+    post:
+      consumes:
+      - application/json
+      description: Generate a payment link for a specific loan
+      parameters:
+      - description: Loan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Generate payment link
+      tags:
+      - payments
+  /loans/{id}/payments:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve payment history for a specific loan
+      parameters:
+      - description: Loan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get payment history
+      tags:
+      - payments
+  /webhook/payment:
+    post:
+      consumes:
+      - application/json
+      description: Process payment webhook from payment gateway
+      parameters:
+      - description: Payment webhook data
+        in: body
+        name: paymentData
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Handle payment webhook
+      tags:
+      - payments
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

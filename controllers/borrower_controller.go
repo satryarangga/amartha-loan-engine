@@ -19,7 +19,15 @@ func NewBorrowerController(borrowerService *services.BorrowerService) *BorrowerC
 	}
 }
 
-// GetBorrowers handles GET /api/v1/borrowers
+// GetBorrowers godoc
+// @Summary Get all borrowers
+// @Description Retrieve a list of all borrowers
+// @Tags borrowers
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 500 {object} map[string]interface{} "Internal Server Error"
+// @Router /borrowers [get]
 func (c *BorrowerController) GetBorrowers(ctx *gin.Context) {
 	borrowers, err := c.borrowerService.GetBorrowers()
 	if err != nil {
@@ -36,7 +44,17 @@ func (c *BorrowerController) GetBorrowers(ctx *gin.Context) {
 	})
 }
 
-// GetBorrowerByID handles GET /api/v1/borrowers/:id
+// GetBorrowerByID godoc
+// @Summary Get borrower by ID
+// @Description Retrieve a specific borrower by their ID
+// @Tags borrowers
+// @Accept json
+// @Produce json
+// @Param id path string true "Borrower ID"
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Failure 404 {object} map[string]interface{} "Not Found"
+// @Router /borrowers/{id} [get]
 func (c *BorrowerController) GetBorrowerByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {
@@ -60,7 +78,16 @@ func (c *BorrowerController) GetBorrowerByID(ctx *gin.Context) {
 	})
 }
 
-// CreateBorrower handles POST /api/v1/borrowers
+// CreateBorrower godoc
+// @Summary Create a new borrower
+// @Description Create a new borrower with the provided information
+// @Tags borrowers
+// @Accept json
+// @Produce json
+// @Param borrower body models.Borrower true "Borrower object"
+// @Success 201 {object} map[string]interface{} "Created"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Router /borrowers [post]
 func (c *BorrowerController) CreateBorrower(ctx *gin.Context) {
 	var borrower models.Borrower
 	if err := ctx.ShouldBindJSON(&borrower); err != nil {
@@ -85,7 +112,17 @@ func (c *BorrowerController) CreateBorrower(ctx *gin.Context) {
 	})
 }
 
-// UpdateBorrower handles PUT /api/v1/borrowers/:id
+// UpdateBorrower godoc
+// @Summary Update a borrower
+// @Description Update an existing borrower's information
+// @Tags borrowers
+// @Accept json
+// @Produce json
+// @Param id path string true "Borrower ID"
+// @Param borrower body models.Borrower true "Updated borrower object"
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Router /borrowers/{id} [put]
 func (c *BorrowerController) UpdateBorrower(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {
@@ -118,7 +155,16 @@ func (c *BorrowerController) UpdateBorrower(ctx *gin.Context) {
 	})
 }
 
-// DeleteBorrower handles DELETE /api/v1/borrowers/:id
+// DeleteBorrower godoc
+// @Summary Delete a borrower
+// @Description Delete a borrower by their ID
+// @Tags borrowers
+// @Accept json
+// @Produce json
+// @Param id path string true "Borrower ID"
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Router /borrowers/{id} [delete]
 func (c *BorrowerController) DeleteBorrower(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {

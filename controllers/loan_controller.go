@@ -19,7 +19,16 @@ func NewLoanController(loanService *services.LoanService) *LoanController {
 	}
 }
 
-// CreateLoan handles POST /api/v1/loans
+// CreateLoan godoc
+// @Summary Create a new loan
+// @Description Create a new loan with automatic schedule generation
+// @Tags loans
+// @Accept json
+// @Produce json
+// @Param loan body models.Loan true "Loan object"
+// @Success 201 {object} map[string]interface{} "Created"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Router /loans [post]
 func (c *LoanController) CreateLoan(ctx *gin.Context) {
 	var loan models.Loan
 	if err := ctx.ShouldBindJSON(&loan); err != nil {
@@ -44,7 +53,15 @@ func (c *LoanController) CreateLoan(ctx *gin.Context) {
 	})
 }
 
-// GetLoans handles GET /api/v1/loans
+// GetLoans godoc
+// @Summary Get all loans
+// @Description Retrieve a list of all loans
+// @Tags loans
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 500 {object} map[string]interface{} "Internal Server Error"
+// @Router /loans [get]
 func (c *LoanController) GetLoans(ctx *gin.Context) {
 	loans, err := c.loanService.GetLoans()
 	if err != nil {
@@ -61,7 +78,17 @@ func (c *LoanController) GetLoans(ctx *gin.Context) {
 	})
 }
 
-// GetLoanByID handles GET /api/v1/loans/:id
+// GetLoanByID godoc
+// @Summary Get loan by ID
+// @Description Retrieve a specific loan by its ID
+// @Tags loans
+// @Accept json
+// @Produce json
+// @Param id path string true "Loan ID"
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Failure 404 {object} map[string]interface{} "Not Found"
+// @Router /loans/{id} [get]
 func (c *LoanController) GetLoanByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {
@@ -85,7 +112,17 @@ func (c *LoanController) GetLoanByID(ctx *gin.Context) {
 	})
 }
 
-// UpdateLoan handles PUT /api/v1/loans/:id
+// UpdateLoan godoc
+// @Summary Update a loan
+// @Description Update an existing loan's information
+// @Tags loans
+// @Accept json
+// @Produce json
+// @Param id path string true "Loan ID"
+// @Param loan body models.Loan true "Updated loan object"
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Router /loans/{id} [put]
 func (c *LoanController) UpdateLoan(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {
@@ -118,7 +155,16 @@ func (c *LoanController) UpdateLoan(ctx *gin.Context) {
 	})
 }
 
-// DeleteLoan handles DELETE /api/v1/loans/:id
+// DeleteLoan godoc
+// @Summary Delete a loan
+// @Description Delete a loan by its ID
+// @Tags loans
+// @Accept json
+// @Produce json
+// @Param id path string true "Loan ID"
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Router /loans/{id} [delete]
 func (c *LoanController) DeleteLoan(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {

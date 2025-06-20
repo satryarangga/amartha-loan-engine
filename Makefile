@@ -1,4 +1,62 @@
-run: build start
+.PHONY: help build run test clean swagger deps migrate
+
+# Default target
+help:
+	@echo "Available commands:"
+	@echo "  build    - Build the application"
+	@echo "  run      - Run the application"
+	@echo "  test     - Run tests"
+	@echo "  clean    - Clean build artifacts"
+	@echo "  swagger  - Generate Swagger documentation"
+	@echo "  deps     - Install dependencies"
+	@echo "  migrate  - Run database migrations"
+
+# Install dependencies
+deps:
+	go mod tidy
+	go mod download
+
+# Build the application
+build:
+	go build -o bin/amartha main.go
+
+# Run the application
+run:
+	go run main.go
+
+# Run tests
+test:
+	go test ./...
+
+# Clean build artifacts
+clean:
+	rm -rf bin/
+	go clean
+
+# Generate Swagger documentation
+swagger:
+	@echo "Installing swag if not already installed..."
+	go install github.com/swaggo/swag/cmd/swag@latest
+	@echo "Generating Swagger documentation..."
+	swag init -g main.go -o docs
+	@echo "Swagger documentation generated successfully!"
+
+# Run database migrations
+migrate:
+	@echo "Installing goose if not already installed..."
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+	@echo "Running database migrations..."
+	goose -dir migrations postgres "host=localhost user=postgres password=password dbname=amartha_db sslmode=disable" up
+
+# Setup project (install deps, generate swagger, run migrations)
+setup: deps swagger migrate
+	@echo "Project setup completed!"
+
+# Development mode (run with hot reload)
+dev:
+	@echo "Starting development server..."
+	@echo "Note: Install air for hot reload: go install github.com/cosmtrek/air@latest"
+	air
 
 # ===========================================
 # Migrations

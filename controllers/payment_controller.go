@@ -18,7 +18,16 @@ func NewPaymentController(paymentService *services.PaymentService) *PaymentContr
 	}
 }
 
-// GeneratePaymentLink handles POST /api/v1/loans/:id/payment-link
+// GeneratePaymentLink godoc
+// @Summary Generate payment link
+// @Description Generate a payment link for a specific loan
+// @Tags payments
+// @Accept json
+// @Produce json
+// @Param id path string true "Loan ID"
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Router /loans/{id}/payment-link [post]
 func (c *PaymentController) GeneratePaymentLink(ctx *gin.Context) {
 	loanID := ctx.Param("id")
 	if loanID == "" {
@@ -43,7 +52,16 @@ func (c *PaymentController) GeneratePaymentLink(ctx *gin.Context) {
 	})
 }
 
-// HandlePaymentWebhook handles POST /api/v1/webhook/payment
+// HandlePaymentWebhook godoc
+// @Summary Handle payment webhook
+// @Description Process payment webhook from payment gateway
+// @Tags payments
+// @Accept json
+// @Produce json
+// @Param paymentData body map[string]interface{} true "Payment webhook data"
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Router /webhook/payment [post]
 func (c *PaymentController) HandlePaymentWebhook(ctx *gin.Context) {
 	var paymentData map[string]interface{}
 	if err := ctx.ShouldBindJSON(&paymentData); err != nil {
@@ -67,7 +85,17 @@ func (c *PaymentController) HandlePaymentWebhook(ctx *gin.Context) {
 	})
 }
 
-// GetPaymentHistory handles GET /api/v1/loans/:id/payments
+// GetPaymentHistory godoc
+// @Summary Get payment history
+// @Description Retrieve payment history for a specific loan
+// @Tags payments
+// @Accept json
+// @Produce json
+// @Param id path string true "Loan ID"
+// @Success 200 {object} map[string]interface{} "Success"
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Failure 500 {object} map[string]interface{} "Internal Server Error"
+// @Router /loans/{id}/payments [get]
 func (c *PaymentController) GetPaymentHistory(ctx *gin.Context) {
 	loanID := ctx.Param("id")
 	if loanID == "" {
