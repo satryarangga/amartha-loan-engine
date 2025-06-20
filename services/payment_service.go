@@ -1,11 +1,12 @@
 package services
 
 import (
-	"amartha/models"
-	"amartha/repositories"
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/satryarangga/amartha-loan-engine/models"
+	"github.com/satryarangga/amartha-loan-engine/repositories"
 
 	"github.com/google/uuid"
 )

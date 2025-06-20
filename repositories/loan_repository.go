@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"amartha/models"
+	"github.com/satryarangga/amartha-loan-engine/models"
 
 	"gorm.io/gorm"
 )

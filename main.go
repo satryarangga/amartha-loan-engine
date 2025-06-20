@@ -1,23 +1,29 @@
 package main
 
 import (
+	"context"
 	"log"
+	"net/http"
 	"os"
 
-	"amartha/config"
-	"amartha/controllers"
-	"amartha/repositories"
-	"amartha/services"
+	"github.com/satryarangga/amartha-loan-engine/config"
+	"github.com/satryarangga/amartha-loan-engine/controllers"
+	"github.com/satryarangga/amartha-loan-engine/repositories"
+	"github.com/satryarangga/amartha-loan-engine/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	// Load environment variables
-	if err := godotenv.Load("config.env"); err != nil {
-		log.Fatal("Error loading .env file")
+	// Initialize logger
+	logger := config.NewLogger()
+	ctx := context.Background()
+
+	conf, err := config.NewConfig()
+	if err != nil {
+		logger.Errorf(ctx, "Unable to initialize config. Error: %v", err)
 	}
+	config.Config = conf
 
 	// Initialize database
 	db, err := config.InitDB()
@@ -43,6 +49,10 @@ func main() {
 
 	// Setup router
 	r := gin.Default()
+
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "OK"})
+	})
 
 	// API routes
 	api := r.Group("/api/v1")

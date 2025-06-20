@@ -1,9 +1,10 @@
 package services
 
 import (
-	"amartha/models"
-	"amartha/repositories"
 	"errors"
+
+	"github.com/satryarangga/amartha-loan-engine/models"
+	"github.com/satryarangga/amartha-loan-engine/repositories"
 )
 
 type BorrowerService struct {

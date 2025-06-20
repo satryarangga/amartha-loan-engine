@@ -12,7 +12,7 @@ A Golang backend application for managing loans, borrowers, and payments with Po
 
 ## Tech Stack
 
-- **Language**: Go 1.21+
+- **Language**: Go 1.24+
 - **Framework**: Gin (HTTP web framework)
 - **ORM**: GORM
 - **Database**: PostgreSQL

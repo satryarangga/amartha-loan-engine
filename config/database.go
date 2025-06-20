@@ -2,36 +2,27 @@ package config
 
 import (
 	"fmt"
-	"os"
-
-	"amartha/models"
+	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func InitDB() (*gorm.DB, error) {
+	config, err := NewConfig()
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_SSLMODE"),
+		config.DBHost,
+		config.DBUser,
+		config.DBPassword,
+		config.DBName,
+		config.DBPort,
+		config.DBSSLMode,
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-
-	// Auto migrate the schema
-	err = db.AutoMigrate(
-		&models.Borrower{},
-		&models.Loan{},
-		&models.LoanSchedule{},
-		&models.LoanPayment{},
-	)
 	if err != nil {
 		return nil, err
 	}

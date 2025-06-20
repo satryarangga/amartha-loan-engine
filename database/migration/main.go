@@ -1,22 +1,20 @@
 package migrations
 
 import (
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose"
-	"github.com/satryarangga/amartha-loan-engine/internal/app"
+	"github.com/satryarangga/amartha-loan-engine/config"
 )
 
-/*
-currently hardcoded for mysql
-*/
 func Migrate(args []string) {
 	if len(args) < 1 {
 		log.Fatalf("missing argument: ./{bin-file} [goose-command]")
 		return
 	}
-	config, err := app.NewConfig()
+	config, err := config.NewConfig()
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
@@ -25,7 +23,7 @@ func Migrate(args []string) {
 	migrationDir, gooseCommand := "database/migration/sql", args[0]
 
 	//check db connection
-	db, err := goose.OpenDBWithDriver(config.DBDriver, config.DBConnection)
+	db, err := goose.OpenDBWithDriver(config.DBDriver, fmt.Sprintf("%s://%s:%s@%s/%s?sslmode=%s", config.DBDriver, config.DBUser, config.DBPassword, config.DBHost, config.DBName, config.DBSSLMode))
 	if err != nil {
 		log.Fatalf("goose: failed to open DB: %v\n", err)
 	}

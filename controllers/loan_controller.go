@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"amartha/models"
-	"amartha/services"
 	"net/http"
+
+	"github.com/satryarangga/amartha-loan-engine/models"
+	"github.com/satryarangga/amartha-loan-engine/services"
 
 	"github.com/gin-gonic/gin"
 )
