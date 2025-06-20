@@ -1,0 +1,49 @@
+Assumptions
+1. Borrower will repay through an app / web
+
+DB Schema
+
+borrowers
+- id
+- first_name
+- last_name
+- phone_number 
+- is_delinquent
+
+loans
+- id
+- borrower_id
+- amount
+- repayment_cadence_days
+- interest_percentage
+- interest_amount
+- status
+- created_at
+- updated_at
+
+loan_schedules
+- id
+- loan_id
+- due_date
+- basic_amount
+- interest_amount
+- total_payment
+- status
+
+loan_payments
+- id
+- loan_id
+- loan_schedule_ids
+- total_payment
+- payment_method
+
+
+
+APIs
+- Create Loan
+- Get list borrowers
+- Get detail of borrower
+- Get list of loans
+- Get detail of loan
+- Generate Payment Link (when borrower wants to make payment)
+- Webhook to make repayment (assume it will be called by Payment Gateway)
