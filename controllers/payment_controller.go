@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/satryarangga/amartha-loan-engine/models"
 	"github.com/satryarangga/amartha-loan-engine/services"
 
 	"github.com/gin-gonic/gin"
@@ -24,20 +25,24 @@ func NewPaymentController(paymentService *services.PaymentServiceImpl) *PaymentC
 // @Tags payments
 // @Accept json
 // @Produce json
-// @Param id path string true "Loan ID"
+// @Param paymentLinkRequest body models.PaymentLinkRequest true "Payment link request"
 // @Success 200 {object} map[string]interface{} "Success"
 // @Failure 400 {object} map[string]interface{} "Bad Request"
-// @Router /loans/{id}/payment-link [post]
+// @Router /payments/link [post]
 func (c *PaymentController) GeneratePaymentLink(ctx *gin.Context) {
-	loanID := ctx.Param("id")
-	if loanID == "" {
+	var paymentLinkRequest models.PaymentLinkRequest
+	if err := ctx.ShouldBindJSON(&paymentLinkRequest); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Loan ID is required",
+			"error":   "Invalid payment link request",
+			"details": err.Error(),
 		})
 		return
 	}
 
-	paymentData, err := c.paymentService.GeneratePaymentLink(ctx, loanID)
+	paymentData, err := c.paymentService.GeneratePaymentLink(ctx, models.PaymentLinkRequest{
+		BorrowerID:    paymentLinkRequest.BorrowerID,
+		PaymentMethod: paymentLinkRequest.PaymentMethod,
+	})
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Failed to generate payment link",
@@ -58,12 +63,12 @@ func (c *PaymentController) GeneratePaymentLink(ctx *gin.Context) {
 // @Tags payments
 // @Accept json
 // @Produce json
-// @Param paymentData body map[string]interface{} true "Payment webhook data"
+// @Param paymentData body models.PaymentWebhookRequest true "Payment webhook data"
 // @Success 200 {object} map[string]interface{} "Success"
 // @Failure 400 {object} map[string]interface{} "Bad Request"
-// @Router /webhook/payment [post]
+// @Router /payments/webhook [post]
 func (c *PaymentController) HandlePaymentWebhook(ctx *gin.Context) {
-	var paymentData map[string]interface{}
+	var paymentData models.PaymentWebhookRequest
 	if err := ctx.ShouldBindJSON(&paymentData); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid webhook payload",

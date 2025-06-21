@@ -19,3 +19,9 @@ type LoanResponse struct {
 	Status               string  `json:"status"`
 	TotalOutstanding     float64 `json:"total_outstanding"`
 }
+
+type PaymentLinkResponse struct {
+	ID                   string  `json:"id"`
+	TotalRepaymentAmount float64 `json:"total_repayment_amount"`
+	PaymentLink          string  `json:"payment_link"`
+}

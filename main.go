@@ -55,7 +55,7 @@ func main() {
 	// Initialize services
 	borrowerService := services.NewBorrowerService(borrowerRepo)
 	loanService := services.NewLoanService(loanRepo, loanScheduleRepo, borrowerRepo)
-	paymentService := services.NewPaymentService(loanPaymentRepo, loanScheduleRepo)
+	paymentService := services.NewPaymentService(loanRepo, loanPaymentRepo, loanScheduleRepo, borrowerRepo)
 
 	// Initialize controllers
 	borrowerController := controllers.NewBorrowerController(borrowerService)
@@ -85,8 +85,8 @@ func main() {
 		api.GET("/loans/:id", loanController.GetLoanByID)
 
 		// Payment routes
-		api.POST("/loans/:id/payment-link", paymentController.GeneratePaymentLink)
-		api.POST("/webhook/payment", paymentController.HandlePaymentWebhook)
+		api.POST("/payments/link", paymentController.GeneratePaymentLink)
+		api.POST("/payments/webhook", paymentController.HandlePaymentWebhook)
 	}
 
 	// Get port from environment

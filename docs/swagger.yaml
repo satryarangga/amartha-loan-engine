@@ -137,6 +137,26 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.PaymentLinkRequest:
+    properties:
+      borrower_id:
+        type: string
+      payment_method:
+        type: string
+    required:
+    - borrower_id
+    - payment_method
+    type: object
+  models.PaymentWebhookRequest:
+    properties:
+      loan_payment_id:
+        type: string
+      payment_status:
+        type: string
+    required:
+    - loan_payment_id
+    - payment_status
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -254,17 +274,18 @@ paths:
       summary: Get loan by ID
       tags:
       - loans
-  /loans/{id}/payment-link:
+  /payments/link:
     post:
       consumes:
       - application/json
       description: Generate a payment link for a specific loan
       parameters:
-      - description: Loan ID
-        in: path
-        name: id
+      - description: Payment link request
+        in: body
+        name: paymentLinkRequest
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/models.PaymentLinkRequest'
       produces:
       - application/json
       responses:
@@ -281,7 +302,7 @@ paths:
       summary: Generate payment link
       tags:
       - payments
-  /webhook/payment:
+  /payments/webhook:
     post:
       consumes:
       - application/json
@@ -292,8 +313,7 @@ paths:
         name: paymentData
         required: true
         schema:
-          additionalProperties: true
-          type: object
+          $ref: '#/definitions/models.PaymentWebhookRequest'
       produces:
       - application/json
       responses:

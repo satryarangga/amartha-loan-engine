@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"context"
+
 	"github.com/satryarangga/amartha-loan-engine/models"
 	"gorm.io/gorm"
 )
@@ -15,4 +17,12 @@ func NewLoanRepository(db *gorm.DB) *LoanRepositoryImpl {
 		DB:               db,
 		CommonRepository: NewCommonRepository[models.Loan](db),
 	}
+}
+
+func (r *LoanRepositoryImpl) FindOneByBorrowerID(ctx context.Context, borrowerID string) (models.Loan, error) {
+	var loan models.Loan
+	err := r.DB.WithContext(ctx).
+		Where("borrower_id = ? and status = ?", borrowerID, models.LoanStatusActive).
+		First(&loan).Error
+	return loan, err
 }

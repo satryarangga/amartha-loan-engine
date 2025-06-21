@@ -2,6 +2,12 @@
 
 A Golang backend application for managing loans, borrowers, and payments with PostgreSQL database.
 
+## Assumptions
+- Borrower can only have 1 active loan, which means the loan needs to be fully repaid before he / she can make another loan
+- Borrower phone number is used as unique identifier
+- Borrower can start to pay loan schedule 3 days before due date
+- Borrower will do repayment through app or web where they can choose a payment method and click a button to pay, once its clicked the borrower can see total amount they need to pay and link to make a payment (Payment Link retrieved from payment gateway API)
+
 ## Features
 
 - **Borrower Management**: Create, read, update, and delete borrowers

@@ -5,6 +5,7 @@ CREATE TABLE loan_payments (
     loan_id UUID NOT NULL REFERENCES loans(id) ON DELETE CASCADE,
     loan_schedule_ids UUID[] NOT NULL,
     total_payment DECIMAL(15,2) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending',
     payment_method VARCHAR(100) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

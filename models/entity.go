@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type Borrower struct {
@@ -45,13 +47,13 @@ type LoanSchedule struct {
 }
 
 type LoanPayment struct {
-	ID              string    `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	LoanID          string    `gorm:"type:uuid;not null" json:"loan_id"`
-	LoanScheduleIDs []string  `gorm:"type:uuid[]" json:"loan_schedule_ids"`
-	TotalPayment    float64   `gorm:"not null" json:"total_payment"`
-	PaymentMethod   string    `gorm:"not null" json:"payment_method"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID              string         `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	LoanID          string         `gorm:"type:uuid;not null" json:"loan_id"`
+	LoanScheduleIDs pq.StringArray `gorm:"type:uuid[]" json:"loan_schedule_ids"`
+	TotalPayment    float64        `gorm:"not null" json:"total_payment"`
+	PaymentMethod   string         `gorm:"not null" json:"payment_method"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
 
 	Loan Loan `gorm:"foreignKey:LoanID" json:"loan,omitempty"`
 }

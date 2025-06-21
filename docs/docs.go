@@ -183,7 +183,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/loans/{id}/payment-link": {
+        "/payments/link": {
             "post": {
                 "description": "Generate a payment link for a specific loan",
                 "consumes": [
@@ -198,11 +198,13 @@ const docTemplate = `{
                 "summary": "Generate payment link",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Loan ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "description": "Payment link request",
+                        "name": "paymentLinkRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentLinkRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -223,7 +225,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/webhook/payment": {
+        "/payments/webhook": {
             "post": {
                 "description": "Process payment webhook from payment gateway",
                 "consumes": [
@@ -243,8 +245,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.PaymentWebhookRequest"
                         }
                     }
                 ],
@@ -468,6 +469,36 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PaymentLinkRequest": {
+            "type": "object",
+            "required": [
+                "borrower_id",
+                "payment_method"
+            ],
+            "properties": {
+                "borrower_id": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PaymentWebhookRequest": {
+            "type": "object",
+            "required": [
+                "loan_payment_id",
+                "payment_status"
+            ],
+            "properties": {
+                "loan_payment_id": {
+                    "type": "string"
+                },
+                "payment_status": {
                     "type": "string"
                 }
             }

@@ -13,3 +13,13 @@ type LoanRequest struct {
 	RepaymentRepetition  int     `json:"repayment_repetition" binding:"required" description:"How many times the loan will be repaid"`
 	InterestPercentage   float64 `json:"interest_percentage" binding:"required" description:"Interest percentage"`
 }
+
+type PaymentLinkRequest struct {
+	BorrowerID    string `json:"borrower_id" binding:"required" description:"Borrower ID"`
+	PaymentMethod string `json:"payment_method" binding:"required" description:"Payment method"`
+}
+
+type PaymentWebhookRequest struct {
+	LoanPaymentID string `json:"loan_payment_id" binding:"required" description:"Loan payment ID"`
+	PaymentStatus string `json:"payment_status" binding:"required" description:"Payment status"`
+}
