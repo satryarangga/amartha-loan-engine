@@ -9,8 +9,8 @@ help:
 	@echo "  make dev       # Run the application"
 	@echo "  make test # Run unit tests only"
 	@echo "  make test-coverage # Run tests with coverage report"
-	@echo "  make generate-mocks # Generate mocks using mockery"
-	@echo "  make generate-swagger # Generate Swagger documentation"
+	@echo "  make mocks # Generate mocks using mockery"
+	@echo "  make swagger # Generate Swagger documentation"
 	@echo "  make migrate # Run database migrations"
 	@echo "  make seed # Run database seeders"
 	@echo "  make clean     # Clean build artifacts"
@@ -40,11 +40,11 @@ test-coverage:
 	go test -coverprofile=coverage.out ./...
 
 # Generate mocks
-generate-mocks:
+mocks:
 	mockery --dir=repositories --output=mock --outpkg=mock --all
 
 # Generate Swagger documentation
-generate-swagger:
+swagger:
 	swag init -g main.go -o docs
 
 # Run database migrations

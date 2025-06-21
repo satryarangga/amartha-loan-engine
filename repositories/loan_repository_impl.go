@@ -23,6 +23,7 @@ func (r *LoanRepositoryImpl) FindOneByBorrowerID(ctx context.Context, borrowerID
 	var loan models.Loan
 	err := r.DB.WithContext(ctx).
 		Where("borrower_id = ? and status = ?", borrowerID, models.LoanStatusActive).
+		Preload("LoanSchedules").
 		First(&loan).Error
 	return loan, err
 }

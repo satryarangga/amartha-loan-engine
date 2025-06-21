@@ -11,8 +11,8 @@ type Borrower struct {
 	FirstName   string    `gorm:"not null" json:"first_name"`
 	LastName    string    `gorm:"not null" json:"last_name"`
 	PhoneNumber string    `gorm:"not null;unique" json:"phone_number"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time `json:"-"`
+	UpdatedAt   time.Time `json:"-"`
 }
 
 type Loan struct {

@@ -53,7 +53,7 @@ func main() {
 	loanPaymentRepo := repositories.NewLoanPaymentRepository(db)
 
 	// Initialize services
-	borrowerService := services.NewBorrowerService(borrowerRepo)
+	borrowerService := services.NewBorrowerService(borrowerRepo, loanRepo)
 	loanService := services.NewLoanService(loanRepo, loanScheduleRepo, borrowerRepo)
 	paymentService := services.NewPaymentService(loanRepo, loanPaymentRepo, loanScheduleRepo, borrowerRepo)
 

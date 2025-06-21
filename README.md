@@ -173,6 +173,7 @@ make build     # Build the application
 make dev       # Run the application
 make test      # Run tests
 make clean     # Clean build artifacts
+make mocks   # Generate mock for test
 make swagger   # Generate Swagger documentation
 make mig-up   # Run database migrations
 make mig-down   # Rollback database migrations

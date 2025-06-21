@@ -25,3 +25,11 @@ type PaymentLinkResponse struct {
 	TotalRepaymentAmount float64 `json:"total_repayment_amount"`
 	PaymentLink          string  `json:"payment_link"`
 }
+
+type BorrowerResponse struct {
+	ID           string `json:"id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	PhoneNumber  string `json:"phone_number"`
+	IsDelinquent bool   `json:"is_delinquent"`
+}
