@@ -20,6 +20,6 @@ type PaymentLinkRequest struct {
 }
 
 type PaymentWebhookRequest struct {
-	LoanPaymentID string `json:"loan_payment_id" binding:"required" description:"Loan payment ID"`
+	ExternalID    string `json:"external_id" binding:"required" description:"External ID of Payment Gateway (Loan Payment ID)"`
 	PaymentStatus string `json:"payment_status" binding:"required" description:"Payment status"`
 }

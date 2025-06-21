@@ -335,9 +335,6 @@ const docTemplate = `{
                 "amount": {
                     "type": "number"
                 },
-                "borrower": {
-                    "$ref": "#/definitions/models.Borrower"
-                },
                 "borrower_id": {
                     "type": "string"
                 },
@@ -353,18 +350,6 @@ const docTemplate = `{
                 "interest_percentage": {
                     "type": "number"
                 },
-                "loan_payments": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.LoanPayment"
-                    }
-                },
-                "loan_schedules": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.LoanSchedule"
-                    }
-                },
                 "repayment_cadence_days": {
                     "type": "integer"
                 },
@@ -372,39 +357,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "status": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.LoanPayment": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "loan": {
-                    "$ref": "#/definitions/models.Loan"
-                },
-                "loan_id": {
-                    "type": "string"
-                },
-                "loan_schedule_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "payment_method": {
-                    "type": "string"
-                },
-                "total_payment": {
-                    "type": "number"
+                    "$ref": "#/definitions/models.LoanStatus"
                 },
                 "updated_at": {
                     "type": "string"
@@ -438,40 +391,16 @@ const docTemplate = `{
                 }
             }
         },
-        "models.LoanSchedule": {
-            "type": "object",
-            "properties": {
-                "basic_amount": {
-                    "type": "number"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "due_date": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "interest_amount": {
-                    "type": "number"
-                },
-                "loan": {
-                    "$ref": "#/definitions/models.Loan"
-                },
-                "loan_id": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "total_payment": {
-                    "type": "number"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
+        "models.LoanStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "paid"
+            ],
+            "x-enum-varnames": [
+                "LoanStatusActive",
+                "LoanStatusPaid"
+            ]
         },
         "models.PaymentLinkRequest": {
             "type": "object",
@@ -491,11 +420,11 @@ const docTemplate = `{
         "models.PaymentWebhookRequest": {
             "type": "object",
             "required": [
-                "loan_payment_id",
+                "external_id",
                 "payment_status"
             ],
             "properties": {
-                "loan_payment_id": {
+                "external_id": {
                     "type": "string"
                 },
                 "payment_status": {

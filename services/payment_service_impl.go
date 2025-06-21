@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/satryarangga/amartha-loan-engine/helpers"
 	"github.com/satryarangga/amartha-loan-engine/models"
 	"github.com/satryarangga/amartha-loan-engine/repositories"
+	"gorm.io/gorm"
 )
 
 type PaymentServiceImpl struct {
@@ -30,9 +32,9 @@ func NewPaymentService(
 	}
 }
 
-func (s *PaymentServiceImpl) GeneratePaymentLink(ctx context.Context, paymentLinkRequest models.PaymentLinkRequest) (*models.PaymentLinkResponse, error) {
+func (s *PaymentServiceImpl) GeneratePaymentLink(ctx context.Context, request models.PaymentLinkRequest) (*models.PaymentLinkResponse, error) {
 	// 1. Find by borrower ID
-	borrower, err := s.borrowerRepo.FindByID(ctx, paymentLinkRequest.BorrowerID, []string{})
+	borrower, err := s.borrowerRepo.FindByID(ctx, request.BorrowerID, []string{})
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +68,7 @@ func (s *PaymentServiceImpl) GeneratePaymentLink(ctx context.Context, paymentLin
 		LoanID:          loan.ID,
 		LoanScheduleIDs: loanScheduleIDs,
 		TotalPayment:    totalRepaymentAmount,
-		PaymentMethod:   paymentLinkRequest.PaymentMethod,
+		PaymentMethod:   request.PaymentMethod,
 	}
 	loanPaymentID, err := s.loanPaymentRepo.Insert(ctx, nil, &loanPayment)
 	if err != nil {
@@ -83,12 +85,56 @@ func (s *PaymentServiceImpl) GeneratePaymentLink(ctx context.Context, paymentLin
 	}, nil
 }
 
-func (s *PaymentServiceImpl) HandlePaymentWebhook(ctx context.Context, paymentWebhookRequest models.PaymentWebhookRequest) error {
-	// 1.Find loand payment with ID
+func (s *PaymentServiceImpl) HandlePaymentWebhook(ctx context.Context, request models.PaymentWebhookRequest) error {
+	if request.PaymentStatus != "paid" {
+		return errors.New("payment status from PG is not paid")
+	}
 
-	// 2. Update Status on Loan Payment
+	err := s.loanRepo.WithTransaction(ctx, func(tx *gorm.DB) error {
+		// 1.Find loan payment with ID
+		loanPayment, err := s.loanPaymentRepo.FindByID(ctx, request.ExternalID, []string{})
+		if err != nil {
+			return err
+		}
 
-	// 3. Update Status of Loand Schedules
+		// 2. Update Status on Loan Payment
+		loanPayment.Status = models.LoanPaymentStatusPaid
+		err = s.loanPaymentRepo.Update(ctx, nil, loanPayment)
+		if err != nil {
+			return err
+		}
 
-	return nil
+		// 3. Find Loan Detail
+		loan, err := s.loanRepo.FindByID(ctx, loanPayment.LoanID, []string{"LoanSchedules"})
+		if err != nil {
+			return err
+		}
+
+		// 4. Calculate total paid repayment amount
+		var totalPaidRepaymentAmount float64
+		for _, loanSchedule := range loan.LoanSchedules {
+			if loanSchedule.Status == models.LoanScheduleStatusPaid {
+				totalPaidRepaymentAmount += loanSchedule.TotalPayment
+			}
+		}
+
+		// 5. Update Status of Loan Schedules
+		err = s.loanScheduleRepo.UpdateStatusByIDs(ctx, tx, loanPayment.LoanScheduleIDs, models.LoanScheduleStatusPaid)
+		if err != nil {
+			return err
+		}
+
+		// 6. Update Status of Loan if no more outstanding repayment amount
+		if totalPaidRepaymentAmount+loanPayment.TotalPayment >= helpers.GetTotalRepaymentAmount(loan) {
+			loan.Status = models.LoanStatusPaid
+			err = s.loanRepo.Update(ctx, tx, loan)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	return err
 }

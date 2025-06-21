@@ -45,8 +45,6 @@ definitions:
     properties:
       amount:
         type: number
-      borrower:
-        $ref: '#/definitions/models.Borrower'
       borrower_id:
         type: string
       created_at:
@@ -57,41 +55,12 @@ definitions:
         type: number
       interest_percentage:
         type: number
-      loan_payments:
-        items:
-          $ref: '#/definitions/models.LoanPayment'
-        type: array
-      loan_schedules:
-        items:
-          $ref: '#/definitions/models.LoanSchedule'
-        type: array
       repayment_cadence_days:
         type: integer
       repayment_repetition:
         type: integer
       status:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  models.LoanPayment:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: string
-      loan:
-        $ref: '#/definitions/models.Loan'
-      loan_id:
-        type: string
-      loan_schedule_ids:
-        items:
-          type: string
-        type: array
-      payment_method:
-        type: string
-      total_payment:
-        type: number
+        $ref: '#/definitions/models.LoanStatus'
       updated_at:
         type: string
     type: object
@@ -114,29 +83,14 @@ definitions:
     - repayment_cadence_days
     - repayment_repetition
     type: object
-  models.LoanSchedule:
-    properties:
-      basic_amount:
-        type: number
-      created_at:
-        type: string
-      due_date:
-        type: string
-      id:
-        type: string
-      interest_amount:
-        type: number
-      loan:
-        $ref: '#/definitions/models.Loan'
-      loan_id:
-        type: string
-      status:
-        type: string
-      total_payment:
-        type: number
-      updated_at:
-        type: string
-    type: object
+  models.LoanStatus:
+    enum:
+    - active
+    - paid
+    type: string
+    x-enum-varnames:
+    - LoanStatusActive
+    - LoanStatusPaid
   models.PaymentLinkRequest:
     properties:
       borrower_id:
@@ -149,12 +103,12 @@ definitions:
     type: object
   models.PaymentWebhookRequest:
     properties:
-      loan_payment_id:
+      external_id:
         type: string
       payment_status:
         type: string
     required:
-    - loan_payment_id
+    - external_id
     - payment_status
     type: object
 host: localhost:8080

@@ -41,7 +41,7 @@ func (s *LoanServiceImpl) GetLoanByID(ctx context.Context, id string) (*models.L
 		RepaymentRepetition:  loan.RepaymentRepetition,
 		InterestPercentage:   loan.InterestPercentage,
 		InterestAmount:       loan.InterestAmount,
-		Status:               loan.Status,
+		Status:               string(loan.Status),
 		TotalOutstanding:     helpers.CalculateTotalOutstanding(loan),
 	}
 

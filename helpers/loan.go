@@ -11,3 +11,7 @@ func CalculateTotalOutstanding(loan *models.Loan) float64 {
 	}
 	return totalOutstanding
 }
+
+func GetTotalRepaymentAmount(loan *models.Loan) float64 {
+	return loan.Amount + loan.InterestAmount
+}
