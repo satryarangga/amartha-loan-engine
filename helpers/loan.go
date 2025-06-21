@@ -22,11 +22,23 @@ func GetTotalRepaymentAmount(loan *models.Loan) float64 {
 }
 
 func IsBorrowerDelinquent(loanSchedules []models.LoanSchedule) bool {
-	maxOverdueRepayment := 2
+	if len(loanSchedules) == 0 {
+		return false
+	}
+
+	now := time.Now()
+	overdueCount := 0
+	const maxOverdueThreshold = 2
+
 	for _, schedule := range loanSchedules {
-		if schedule.Status == models.LoanScheduleStatusPending && schedule.DueDate.Before(time.Now()) {
-			maxOverdueRepayment--
+		if overdueCount >= maxOverdueThreshold {
+			return true
+		}
+
+		if schedule.Status == models.LoanScheduleStatusPending && schedule.DueDate.Before(now) {
+			overdueCount++
 		}
 	}
-	return maxOverdueRepayment <= 0
+
+	return overdueCount >= maxOverdueThreshold
 }
