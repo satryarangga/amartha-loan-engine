@@ -31,7 +31,9 @@ build:
 
 # Run the application
 dev:
-	go run main.go
+	@echo "Starting development server..."Add commentMore actions
+	@echo "Note: Install air for hot reload: go install github.com/cosmtrek/air@latest"
+	air
 
 # Run unit tests only
 test:
@@ -78,7 +80,7 @@ mig-down: mig-build
 
 
 # Complete project setup
-setup: deps swagger mig-up
+setup: deps mig-up
 	@echo "Project setup completed!"
 
 # Format code
