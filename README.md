@@ -7,8 +7,11 @@ A Golang backend application for managing loans, borrowers, and payments with Po
 - Borrower can start to pay loan schedule 3 days before due date
 - Borrower will do repayment through app or web where they can choose a payment method and click a button to pay, once its clicked the borrower can see total amount they need to pay and link to make a payment (Payment Link retrieved from payment gateway API)
 
-## Features
+## Out of scopes
+- API Authentication
+- Scheduler to send reminder to borrowers that will need to do repayment
 
+## Features
 - **Borrower Management**: Create and Get Detail Borrower
 - **Loan Management**: Create loans with automatic schedule generation and Get loan detail
 - **Payment Processing**: Generate payment links and handle payment webhooks
@@ -42,10 +45,17 @@ A Golang backend application for managing loans, borrowers, and payments with Po
 2. **Set up PostgreSQL database**
    ```bash
    # Create database
-   createdb amartha
+   create database amartha;
    ```
 
-3. **Install dependencies and setup project**
+3. **Configure environment variables**
+   ```bash
+   # Copy and edit the config file
+   cp app.env.example app.env
+   # Edit app.env with your database credentials
+   ```
+
+4. **Install dependencies and setup project**
    ```bash
    make setup
    ```
@@ -53,13 +63,6 @@ A Golang backend application for managing loans, borrowers, and payments with Po
    - Install all dependencies
    - Generate Swagger documentation
    - Run database migrations
-
-4. **Configure environment variables**
-   ```bash
-   # Copy and edit the config file
-   cp app.env.example app.env
-   # Edit app.env with your database credentials
-   ```
 
 5. **Run the application**
    ```bash

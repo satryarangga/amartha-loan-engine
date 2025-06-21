@@ -11,7 +11,9 @@ help:
 	@echo "  make test-coverage # Run tests with coverage report"
 	@echo "  make mocks # Generate mocks using mockery"
 	@echo "  make swagger # Generate Swagger documentation"
-	@echo "  make migrate # Run database migrations"
+	@echo "  make mig-up # Run database migrations"
+	@echo "  make mig-down # Rollback database migrations"
+	@echo "  make mig-reset # Reset database migrations"
 	@echo "  make seed # Run database seeders"
 	@echo "  make clean     # Clean build artifacts"
 	@echo "  make setup     # Complete project setup"
@@ -47,24 +49,36 @@ mocks:
 swagger:
 	swag init -g main.go -o docs
 
-# Run database migrations
-mig-up:
-	go run cmd/migration/main.go migrate up
-
-# Rollback database migrations
-mig-down:
-	go run cmd/migration/main.go migrate down
-
-# DANGEROUS - Reset migration
-mig-reset:
-	go run cmd/migration/main.go migrate reset
-
-# Insert seed data (for development)
 seed:
-	go run database/seeder/main.go
+	@echo ">> Seeding data..."
+	@go build -o bin/migration ./cmd/migration
+	@./bin/migration seed
+	@echo ">> finished seeding data..."
+
+mig-build:
+	@echo "Installing goose if not already installed..."
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+	@echo ">> Building migration..."
+	@go build -o bin/migration ./cmd/migration
+
+mig-up: mig-build
+	@echo ">> executing migration..."
+	@./bin/migration migrate up
+	@echo ">> finished executing migration..."
+
+mig-reset: mig-build
+	@echo ">> resetting migration..."
+	@./bin/migration migrate reset
+	@echo ">> finished resetting migration..."
+
+mig-down: mig-build
+	@echo ">> Rolling back migration 1 version..."
+	@./bin/migration migrate down
+	@echo ">> finished rolling bank migration 1 version..."
+
 
 # Complete project setup
-setup: deps swagger mig-up seed
+setup: deps swagger mig-up
 	@echo "Project setup completed!"
 
 # Format code
