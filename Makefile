@@ -1,93 +1,81 @@
-.PHONY: help build run test clean swagger deps migrate
+.PHONY: help deps build dev test clean swagger mig-up mig-down mig-reset seed setup test-unit test-coverage test-verbose test-file test-services test-helpers generate-mocks generate-swagger migrate seed fmt lint
 
 # Default target
 help:
 	@echo "Available commands:"
-	@echo "  build    - Build the application"
-	@echo "  run      - Run the application"
-	@echo "  test     - Run tests"
-	@echo "  clean    - Clean build artifacts"
-	@echo "  swagger  - Generate Swagger documentation"
-	@echo "  deps     - Install dependencies"
-	@echo "  migrate  - Run database migrations"
+	@echo "  make help      # Show available commands"
+	@echo "  make deps      # Install dependencies"
+	@echo "  make build     # Build the application"
+	@echo "  make dev       # Run the application"
+	@echo "  make test # Run unit tests only"
+	@echo "  make test-coverage # Run tests with coverage report"
+	@echo "  make generate-mocks # Generate mocks using mockery"
+	@echo "  make generate-swagger # Generate Swagger documentation"
+	@echo "  make migrate # Run database migrations"
+	@echo "  make seed # Run database seeders"
+	@echo "  make clean     # Clean build artifacts"
+	@echo "  make setup     # Complete project setup"
+	@echo "  make fmt       # Format code"
+	@echo "  make lint      # Lint code"
 
 # Install dependencies
 deps:
-	go mod tidy
 	go mod download
+	go mod tidy
 
 # Build the application
 build:
-	go build -o bin/amartha main.go
+	go build -o bin/amartha-loan-engine main.go
 
 # Run the application
-run:
+dev:
 	go run main.go
 
-# Run tests
+# Run unit tests only
 test:
-	go test ./...
+	go test -v ./...
+
+# Run tests with coverage report
+test-coverage:
+	go test -coverprofile=coverage.out ./...
+
+# Generate mocks
+generate-mocks:
+	mockery --dir=repositories --output=mock --outpkg=mock --all
+
+# Generate Swagger documentation
+generate-swagger:
+	swag init -g main.go -o docs
+
+# Run database migrations
+mig-up:
+	go run cmd/migration/main.go migrate up
+
+# Rollback database migrations
+mig-down:
+	go run cmd/migration/main.go migrate down
+
+# DANGEROUS - Reset migration
+mig-reset:
+	go run cmd/migration/main.go migrate reset
+
+# Insert seed data (for development)
+seed:
+	go run database/seeder/main.go
+
+# Complete project setup
+setup: deps swagger mig-up seed
+	@echo "Project setup completed!"
+
+# Format code
+fmt:
+	go fmt ./...
+
+# Lint code
+lint:
+	golangci-lint run
 
 # Clean build artifacts
 clean:
 	rm -rf bin/
-	go clean
-
-# Generate Swagger documentation
-swagger:
-	@echo "Installing swag if not already installed..."
-	go install github.com/swaggo/swag/cmd/swag@latest
-	@echo "Generating Swagger documentation..."
-	swag init -g main.go -o docs
-	@echo "Swagger documentation generated successfully!"
-
-# Development mode (run with hot reload)
-dev:
-	@echo "Starting development server..."
-	@echo "Note: Install air for hot reload: go install github.com/cosmtrek/air@latest"
-	air
-
-seed:
-	@echo ">> Seeding data..."
-	@go build -o bin/migration ./cmd/migration
-	@./bin/migration seed
-	@echo ">> finished seeding data..."
-
-mig-build:
-	@echo "Installing goose if not already installed..."
-	go install github.com/pressly/goose/v3/cmd/goose@latest
-	@echo ">> Building migration..."
-	@go build -o bin/migration ./cmd/migration
-
-mig-up: mig-build
-	@echo ">> executing migration..."
-	@./bin/migration migrate up
-	@echo ">> finished executing migration..."
-
-mig-reset: mig-build
-	@echo ">> resetting migration..."
-	@./bin/migration migrate reset
-	@echo ">> finished resetting migration..."
-
-mig-down: mig-build
-	@echo ">> Rolling back migration 1 version..."
-	@./bin/migration migrate down
-	@echo ">> finished rolling bank migration 1 version..."
-
-mig-status: mig-build
-	@echo ">> Migration Status"
-	@./bin/migration migrate status
-
-mig-create: mig-build
-	@echo ">> Create Migration"
-	@./bin/migration migrate create $(name) go
-
-setup: deps swagger mig-up
-	@echo "Project setup completed!"
-
-deploy:
-	@echo ">> Deploying changes..."
-	@docker-compose stop && docker-compose up -d --build
-	@echo ">> Running schema migration"
-	mig-up
-	@echo ">> Changes are Deployed"
+	rm -f coverage.out
