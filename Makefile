@@ -82,7 +82,7 @@ mig-create: mig-build
 	@echo ">> Create Migration"
 	@./bin/migration migrate create $(name) go
 
-setup: deps swagger mig-up seed
+setup: deps swagger mig-up
 	@echo "Project setup completed!"
 
 deploy:
