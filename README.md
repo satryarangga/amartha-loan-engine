@@ -61,7 +61,6 @@ A Golang backend application for managing loans, borrowers, and payments with Po
    ```
    This will:
    - Install all dependencies
-   - Generate Swagger documentation
    - Run database migrations
 
 5. **Run the application**
