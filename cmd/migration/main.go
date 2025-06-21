@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	migration "github.com/satryarangga/amartha-loan-engine/database/migration"
+	seeder "github.com/satryarangga/amartha-loan-engine/database/seeder"
 )
 
 func main() {
@@ -14,5 +15,6 @@ func main() {
 	case "migrate":
 		migration.Migrate(args[1:])
 	case "seed":
+		seeder.Seed()
 	}
 }

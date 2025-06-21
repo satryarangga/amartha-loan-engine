@@ -1,0 +1,2 @@
+insert into loans (id, borrower_id, amount, repayment_cadence_days, repayment_repetition, interest_percentage, interest_amount, status) 
+values ('3e9cb9ee-684a-48b9-b532-1c7b822f8ae1', '3e9cb9ee-684a-48b9-b532-1c7b822f8ae0', 5000000, 7, 50, 10, 500000, 'active');

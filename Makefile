@@ -41,27 +41,21 @@ swagger:
 	swag init -g main.go -o docs
 	@echo "Swagger documentation generated successfully!"
 
-# Run database migrations
-migrate:
-	@echo "Installing goose if not already installed..."
-	go install github.com/pressly/goose/v3/cmd/goose@latest
-	@echo "Running database migrations..."
-	goose -dir migrations postgres "host=localhost user=postgres password=password dbname=amartha_db sslmode=disable" up
-
-# Setup project (install deps, generate swagger, run migrations)
-setup: deps swagger migrate
-	@echo "Project setup completed!"
-
 # Development mode (run with hot reload)
 dev:
 	@echo "Starting development server..."
 	@echo "Note: Install air for hot reload: go install github.com/cosmtrek/air@latest"
 	air
 
-# ===========================================
-# Migrations
-# ===========================================
+seed:
+	@echo ">> Seeding data..."
+	@go build -o bin/migration ./cmd/migration
+	@./bin/migration seed
+	@echo ">> finished seeding data..."
+
 mig-build:
+	@echo "Installing goose if not already installed..."
+	go install github.com/pressly/goose/v3/cmd/goose@latest
 	@echo ">> Building migration..."
 	@go build -o bin/migration ./cmd/migration
 
@@ -70,7 +64,7 @@ mig-up: mig-build
 	@./bin/migration migrate up
 	@echo ">> finished executing migration..."
 
-mig-down-all: mig-build
+mig-reset: mig-build
 	@echo ">> resetting migration..."
 	@./bin/migration migrate reset
 	@echo ">> finished resetting migration..."
@@ -87,6 +81,9 @@ mig-status: mig-build
 mig-create: mig-build
 	@echo ">> Create Migration"
 	@./bin/migration migrate create $(name) go
+
+setup: deps swagger mig-up seed
+	@echo "Project setup completed!"
 
 deploy:
 	@echo ">> Deploying changes..."
